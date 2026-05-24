@@ -1,5 +1,5 @@
 import { supabase } from '../../lib/supabase';
-import { RecipeIngredient } from '../../types/ingredient.types';
+import { RecipeIngredient, RecipeIngredientRow } from '../../types/ingredient.types';
 
 export async function getRecipeIngredients(
     recipeId: string
@@ -27,11 +27,12 @@ export async function getRecipeIngredients(
         return [];
     }
 
-    return data.map((row: any): RecipeIngredient => ({
+    // Convert the raw database rows to the frontend model, flattening the ingredient name
+    return data.map((row: RecipeIngredientRow): RecipeIngredient => ({
         recipeIngredientId: row.id,
-        ingredientId: row.ingredient_id,
-        recipeId: row.recipe_id,
-        name: row.ingredients?.name ?? '', // Flatten the ingredient name from the joined table
+        ingredientId: row.ingredient_id ?? '', // Handle potential null value
+        recipeId: row.recipe_id ?? '', // Handle potential null value
+        name: row.ingredients?.[0]?.name ?? '', // Flatten the ingredient name from the joined table
         quantity: row.quantity,
         unit: row.unit,
         isOptional: row.is_optional,
