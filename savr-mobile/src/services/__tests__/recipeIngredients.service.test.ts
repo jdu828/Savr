@@ -1,4 +1,4 @@
-import { getRecipeIngredients } from '../recipes/recipeIngredients.service';
+import { getRecipeIngredients } from '../recipes/getRecipeIngredients.service';
 import { supabase } from '../../lib/supabase';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
