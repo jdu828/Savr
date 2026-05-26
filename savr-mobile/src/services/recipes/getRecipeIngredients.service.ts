@@ -1,6 +1,18 @@
 import { supabase } from '../../lib/supabase';
 import { RecipeIngredient, RecipeIngredientRow } from '../../types/ingredient.types';
 
+function mapRowToIngredient(row: RecipeIngredientRow): RecipeIngredient {
+    return {
+        recipeIngredientId: row.id,
+        ingredientId: row.ingredient_id ?? '', // Handle potential null value
+        recipeId: row.recipe_id ?? '', // Handle potential null value   
+        name: row.ingredients?.[0]?.name ?? '', // Flatten the ingredient name from the joined table
+        quantity: row.quantity, 
+        unit: row.unit,
+        isOptional: row.is_optional,
+    };
+}
+
 export async function getRecipeIngredients(
     recipeId: string
 ): Promise<RecipeIngredient[]> {
@@ -28,13 +40,5 @@ export async function getRecipeIngredients(
     }
 
     // Convert the raw database rows to the frontend model, flattening the ingredient name
-    return data.map((row: RecipeIngredientRow): RecipeIngredient => ({
-        recipeIngredientId: row.id,
-        ingredientId: row.ingredient_id ?? '', // Handle potential null value
-        recipeId: row.recipe_id ?? '', // Handle potential null value
-        name: row.ingredients?.[0]?.name ?? '', // Flatten the ingredient name from the joined table
-        quantity: row.quantity,
-        unit: row.unit,
-        isOptional: row.is_optional,
-    }));
+    return (data as RecipeIngredientRow[]).map(mapRowToIngredient);
 }

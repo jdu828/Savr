@@ -1,4 +1,3 @@
-import { Tables } from './database';
 
 // The frontend model for a recipe ingredient
 export type RecipeIngredient = {
@@ -24,3 +23,14 @@ export type RecipeIngredientRow = {
         name: string;
     }[];
 };
+
+// Taken from supabase schema
+export type Ingredient = {
+    id: string;
+    name: string;
+    is_perishable: boolean;
+    shelf_life_days: number | null;
+    category: string | null;
+    created_at: string;
+};
+

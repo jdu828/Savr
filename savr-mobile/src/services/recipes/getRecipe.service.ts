@@ -1,6 +1,7 @@
 import { supabase } from '../../lib/supabase';
+import { Recipe } from '../../types/recipe.types';
 
-export async function getRecipeById(recipeId: string) {
+export async function getRecipeById(recipeId: string) : Promise<Recipe> {
   const { data, error } = await supabase
     .from('recipes')
     .select('*')

@@ -1,6 +1,7 @@
 import { supabase } from '../../lib/supabase';
+import { Ingredient } from '../../types/ingredient.types';
 
-export async function getIngredientById(ingredientId: string) {
+export async function getIngredientById(ingredientId: string): Promise<Ingredient> {
   const { data, error } = await supabase
     .from('ingredients')
     .select('*')
