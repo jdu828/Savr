@@ -131,11 +131,17 @@ describe('getRecipeDetails', () => {
   describe('successful aggregation', () => {
     it('should fetch and assemble all recipe data successfully', async () => {
       // Setup mocks
-      (recipeService.getRecipeById as jest.Mock).mockResolvedValue(mockRecipe);
-      (ingredientService.getRecipeIngredients as jest.Mock).mockResolvedValue(mockIngredients);
-      (stepsService.getRecipeSteps as jest.Mock).mockResolvedValue(mockSteps);
-      (equipmentService.getRecipeEquipment as jest.Mock).mockResolvedValue(mockEquipment);
-      (tagsService.getRecipeTags as jest.Mock).mockResolvedValue(mockTags);
+      const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+      const mockGetRecipeIngredients = jest.mocked(ingredientService.getRecipeIngredients);
+      const mockGetRecipeSteps = jest.mocked(stepsService.getRecipeSteps);
+      const mockGetRecipeEquipment = jest.mocked(equipmentService.getRecipeEquipment);
+      const mockGetRecipeTags = jest.mocked(tagsService.getRecipeTags);
+
+      mockGetRecipeById.mockResolvedValue(mockRecipe);
+      mockGetRecipeIngredients.mockResolvedValue(mockIngredients);
+      mockGetRecipeSteps.mockResolvedValue(mockSteps);
+      mockGetRecipeEquipment.mockResolvedValue(mockEquipment);
+      mockGetRecipeTags.mockResolvedValue(mockTags);
 
       // Execute
       const result = await getRecipeDetails(recipeId);
@@ -151,11 +157,17 @@ describe('getRecipeDetails', () => {
     });
 
     it('should return valid RecipeDetails type', async () => {
-      (recipeService.getRecipeById as jest.Mock).mockResolvedValue(mockRecipe);
-      (ingredientService.getRecipeIngredients as jest.Mock).mockResolvedValue(mockIngredients);
-      (stepsService.getRecipeSteps as jest.Mock).mockResolvedValue(mockSteps);
-      (equipmentService.getRecipeEquipment as jest.Mock).mockResolvedValue(mockEquipment);
-      (tagsService.getRecipeTags as jest.Mock).mockResolvedValue(mockTags);
+      const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+      const mockGetRecipeIngredients = jest.mocked(ingredientService.getRecipeIngredients);
+      const mockGetRecipeSteps = jest.mocked(stepsService.getRecipeSteps);
+      const mockGetRecipeEquipment = jest.mocked(equipmentService.getRecipeEquipment);
+      const mockGetRecipeTags = jest.mocked(tagsService.getRecipeTags);
+
+      mockGetRecipeById.mockResolvedValue(mockRecipe);
+      mockGetRecipeIngredients.mockResolvedValue(mockIngredients);
+      mockGetRecipeSteps.mockResolvedValue(mockSteps);
+      mockGetRecipeEquipment.mockResolvedValue(mockEquipment);
+      mockGetRecipeTags.mockResolvedValue(mockTags);
 
       const result: RecipeDetails = await getRecipeDetails(recipeId);
 
@@ -169,11 +181,17 @@ describe('getRecipeDetails', () => {
     });
 
     it('should handle empty lists from related services', async () => {
-      (recipeService.getRecipeById as jest.Mock).mockResolvedValue(mockRecipe);
-      (ingredientService.getRecipeIngredients as jest.Mock).mockResolvedValue([]);
-      (stepsService.getRecipeSteps as jest.Mock).mockResolvedValue([]);
-      (equipmentService.getRecipeEquipment as jest.Mock).mockResolvedValue([]);
-      (tagsService.getRecipeTags as jest.Mock).mockResolvedValue([]);
+      const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+      const mockGetRecipeIngredients = jest.mocked(ingredientService.getRecipeIngredients);
+      const mockGetRecipeSteps = jest.mocked(stepsService.getRecipeSteps);
+      const mockGetRecipeEquipment = jest.mocked(equipmentService.getRecipeEquipment);
+      const mockGetRecipeTags = jest.mocked(tagsService.getRecipeTags);
+
+      mockGetRecipeById.mockResolvedValue(mockRecipe);
+      mockGetRecipeIngredients.mockResolvedValue([]);
+      mockGetRecipeSteps.mockResolvedValue([]);
+      mockGetRecipeEquipment.mockResolvedValue([]);
+      mockGetRecipeTags.mockResolvedValue([]);
 
       const result = await getRecipeDetails(recipeId);
 
@@ -187,11 +205,17 @@ describe('getRecipeDetails', () => {
 
   describe('service invocation', () => {
     it('should call getRecipeById with correct recipeId', async () => {
-      (recipeService.getRecipeById as jest.Mock).mockResolvedValue(mockRecipe);
-      (ingredientService.getRecipeIngredients as jest.Mock).mockResolvedValue([]);
-      (stepsService.getRecipeSteps as jest.Mock).mockResolvedValue([]);
-      (equipmentService.getRecipeEquipment as jest.Mock).mockResolvedValue([]);
-      (tagsService.getRecipeTags as jest.Mock).mockResolvedValue([]);
+      const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+      const mockGetRecipeIngredients = jest.mocked(ingredientService.getRecipeIngredients);
+      const mockGetRecipeSteps = jest.mocked(stepsService.getRecipeSteps);
+      const mockGetRecipeEquipment = jest.mocked(equipmentService.getRecipeEquipment);
+      const mockGetRecipeTags = jest.mocked(tagsService.getRecipeTags);
+
+      mockGetRecipeById.mockResolvedValue(mockRecipe);
+      mockGetRecipeIngredients.mockResolvedValue([]);
+      mockGetRecipeSteps.mockResolvedValue([]);
+      mockGetRecipeEquipment.mockResolvedValue([]);
+      mockGetRecipeTags.mockResolvedValue([]);
 
       await getRecipeDetails(recipeId);
 
@@ -200,11 +224,17 @@ describe('getRecipeDetails', () => {
     });
 
     it('should call getRecipeIngredients with correct recipeId', async () => {
-      (recipeService.getRecipeById as jest.Mock).mockResolvedValue(mockRecipe);
-      (ingredientService.getRecipeIngredients as jest.Mock).mockResolvedValue([]);
-      (stepsService.getRecipeSteps as jest.Mock).mockResolvedValue([]);
-      (equipmentService.getRecipeEquipment as jest.Mock).mockResolvedValue([]);
-      (tagsService.getRecipeTags as jest.Mock).mockResolvedValue([]);
+      const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+      const mockGetRecipeIngredients = jest.mocked(ingredientService.getRecipeIngredients);
+      const mockGetRecipeSteps = jest.mocked(stepsService.getRecipeSteps);
+      const mockGetRecipeEquipment = jest.mocked(equipmentService.getRecipeEquipment);
+      const mockGetRecipeTags = jest.mocked(tagsService.getRecipeTags);
+
+      mockGetRecipeById.mockResolvedValue(mockRecipe);
+      mockGetRecipeIngredients.mockResolvedValue([]);
+      mockGetRecipeSteps.mockResolvedValue([]);
+      mockGetRecipeEquipment.mockResolvedValue([]);
+      mockGetRecipeTags.mockResolvedValue([]);
 
       await getRecipeDetails(recipeId);
 
@@ -213,11 +243,17 @@ describe('getRecipeDetails', () => {
     });
 
     it('should call getRecipeSteps with correct recipeId', async () => {
-      (recipeService.getRecipeById as jest.Mock).mockResolvedValue(mockRecipe);
-      (ingredientService.getRecipeIngredients as jest.Mock).mockResolvedValue([]);
-      (stepsService.getRecipeSteps as jest.Mock).mockResolvedValue([]);
-      (equipmentService.getRecipeEquipment as jest.Mock).mockResolvedValue([]);
-      (tagsService.getRecipeTags as jest.Mock).mockResolvedValue([]);
+      const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+      const mockGetRecipeIngredients = jest.mocked(ingredientService.getRecipeIngredients);
+      const mockGetRecipeSteps = jest.mocked(stepsService.getRecipeSteps);
+      const mockGetRecipeEquipment = jest.mocked(equipmentService.getRecipeEquipment);
+      const mockGetRecipeTags = jest.mocked(tagsService.getRecipeTags);
+
+      mockGetRecipeById.mockResolvedValue(mockRecipe);
+      mockGetRecipeIngredients.mockResolvedValue([]);
+      mockGetRecipeSteps.mockResolvedValue([]);
+      mockGetRecipeEquipment.mockResolvedValue([]);
+      mockGetRecipeTags.mockResolvedValue([]);
 
       await getRecipeDetails(recipeId);
 
@@ -226,11 +262,17 @@ describe('getRecipeDetails', () => {
     });
 
     it('should call getRecipeEquipment with correct recipeId', async () => {
-      (recipeService.getRecipeById as jest.Mock).mockResolvedValue(mockRecipe);
-      (ingredientService.getRecipeIngredients as jest.Mock).mockResolvedValue([]);
-      (stepsService.getRecipeSteps as jest.Mock).mockResolvedValue([]);
-      (equipmentService.getRecipeEquipment as jest.Mock).mockResolvedValue([]);
-      (tagsService.getRecipeTags as jest.Mock).mockResolvedValue([]);
+      const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+      const mockGetRecipeIngredients = jest.mocked(ingredientService.getRecipeIngredients);
+      const mockGetRecipeSteps = jest.mocked(stepsService.getRecipeSteps);
+      const mockGetRecipeEquipment = jest.mocked(equipmentService.getRecipeEquipment);
+      const mockGetRecipeTags = jest.mocked(tagsService.getRecipeTags);
+
+      mockGetRecipeById.mockResolvedValue(mockRecipe);
+      mockGetRecipeIngredients.mockResolvedValue([]);
+      mockGetRecipeSteps.mockResolvedValue([]);
+      mockGetRecipeEquipment.mockResolvedValue([]);
+      mockGetRecipeTags.mockResolvedValue([]);
 
       await getRecipeDetails(recipeId);
 
@@ -239,11 +281,17 @@ describe('getRecipeDetails', () => {
     });
 
     it('should call getRecipeTags with correct recipeId', async () => {
-      (recipeService.getRecipeById as jest.Mock).mockResolvedValue(mockRecipe);
-      (ingredientService.getRecipeIngredients as jest.Mock).mockResolvedValue([]);
-      (stepsService.getRecipeSteps as jest.Mock).mockResolvedValue([]);
-      (equipmentService.getRecipeEquipment as jest.Mock).mockResolvedValue([]);
-      (tagsService.getRecipeTags as jest.Mock).mockResolvedValue([]);
+      const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+      const mockGetRecipeIngredients = jest.mocked(ingredientService.getRecipeIngredients);
+      const mockGetRecipeSteps = jest.mocked(stepsService.getRecipeSteps);
+      const mockGetRecipeEquipment = jest.mocked(equipmentService.getRecipeEquipment);
+      const mockGetRecipeTags = jest.mocked(tagsService.getRecipeTags);
+
+      mockGetRecipeById.mockResolvedValue(mockRecipe);
+      mockGetRecipeIngredients.mockResolvedValue([]);
+      mockGetRecipeSteps.mockResolvedValue([]);
+      mockGetRecipeEquipment.mockResolvedValue([]);
+      mockGetRecipeTags.mockResolvedValue([]);
 
       await getRecipeDetails(recipeId);
 
@@ -252,11 +300,17 @@ describe('getRecipeDetails', () => {
     });
 
     it('should call all services in parallel', async () => {
-      (recipeService.getRecipeById as jest.Mock).mockResolvedValue(mockRecipe);
-      (ingredientService.getRecipeIngredients as jest.Mock).mockResolvedValue(mockIngredients);
-      (stepsService.getRecipeSteps as jest.Mock).mockResolvedValue(mockSteps);
-      (equipmentService.getRecipeEquipment as jest.Mock).mockResolvedValue(mockEquipment);
-      (tagsService.getRecipeTags as jest.Mock).mockResolvedValue(mockTags);
+      const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+      const mockGetRecipeIngredients = jest.mocked(ingredientService.getRecipeIngredients);
+      const mockGetRecipeSteps = jest.mocked(stepsService.getRecipeSteps);
+      const mockGetRecipeEquipment = jest.mocked(equipmentService.getRecipeEquipment);
+      const mockGetRecipeTags = jest.mocked(tagsService.getRecipeTags);
+
+      mockGetRecipeById.mockResolvedValue(mockRecipe);
+      mockGetRecipeIngredients.mockResolvedValue(mockIngredients);
+      mockGetRecipeSteps.mockResolvedValue(mockSteps);
+      mockGetRecipeEquipment.mockResolvedValue(mockEquipment);
+      mockGetRecipeTags.mockResolvedValue(mockTags);
 
       const startTime = Date.now();
       await getRecipeDetails(recipeId);
@@ -268,78 +322,119 @@ describe('getRecipeDetails', () => {
     });
   });
 
-  describe('error propagation', () => {
-    it('should propagate error from getRecipeById', async () => {
-      const testError = new Error('Recipe not found');
-      (recipeService.getRecipeById as jest.Mock).mockRejectedValue(testError);
+describe('error propagation', () => {
+  it('should propagate error from getRecipeById', async () => {
+    const testError = new Error('Recipe not found');
+    const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
 
-      await expect(getRecipeDetails(recipeId)).rejects.toThrow(
-        `Failed to fetch recipe details for recipe ID "${recipeId}": Recipe not found`
-      );
-    });
+    mockGetRecipeById.mockRejectedValue(testError);
 
-    it('should propagate error from getRecipeIngredients', async () => {
-      const testError = new Error('Database connection failed');
-      (recipeService.getRecipeById as jest.Mock).mockResolvedValue(mockRecipe);
-      (ingredientService.getRecipeIngredients as jest.Mock).mockRejectedValue(testError);
-
-      await expect(getRecipeDetails(recipeId)).rejects.toThrow(
-        `Failed to fetch recipe details for recipe ID "${recipeId}": Database connection failed`
-      );
-    });
-
-    it('should propagate error from getRecipeSteps', async () => {
-      const testError = new Error('Query timeout');
-      (recipeService.getRecipeById as jest.Mock).mockResolvedValue(mockRecipe);
-      (ingredientService.getRecipeIngredients as jest.Mock).mockResolvedValue(mockIngredients);
-      (stepsService.getRecipeSteps as jest.Mock).mockRejectedValue(testError);
-
-      await expect(getRecipeDetails(recipeId)).rejects.toThrow(
-        `Failed to fetch recipe details for recipe ID "${recipeId}": Query timeout`
-      );
-    });
-
-    it('should propagate error from getRecipeEquipment', async () => {
-      const testError = new Error('Permission denied');
-      (recipeService.getRecipeById as jest.Mock).mockResolvedValue(mockRecipe);
-      (ingredientService.getRecipeIngredients as jest.Mock).mockResolvedValue(mockIngredients);
-      (stepsService.getRecipeSteps as jest.Mock).mockResolvedValue(mockSteps);
-      (equipmentService.getRecipeEquipment as jest.Mock).mockRejectedValue(testError);
-
-      await expect(getRecipeDetails(recipeId)).rejects.toThrow(
-        `Failed to fetch recipe details for recipe ID "${recipeId}": Permission denied`
-      );
-    });
-
-    it('should propagate error from getRecipeTags', async () => {
-      const testError = new Error('Service unavailable');
-      (recipeService.getRecipeById as jest.Mock).mockResolvedValue(mockRecipe);
-      (ingredientService.getRecipeIngredients as jest.Mock).mockResolvedValue(mockIngredients);
-      (stepsService.getRecipeSteps as jest.Mock).mockResolvedValue(mockSteps);
-      (equipmentService.getRecipeEquipment as jest.Mock).mockResolvedValue(mockEquipment);
-      (tagsService.getRecipeTags as jest.Mock).mockRejectedValue(testError);
-
-      await expect(getRecipeDetails(recipeId)).rejects.toThrow(
-        `Failed to fetch recipe details for recipe ID "${recipeId}": Service unavailable`
-      );
-    });
-
-    it('should include recipeId in error message for debugging', async () => {
-      const testRecipeId = 'non-existent-recipe';
-      const testError = new Error('Not found');
-      (recipeService.getRecipeById as jest.Mock).mockRejectedValue(testError);
-
-      await expect(getRecipeDetails(testRecipeId)).rejects.toThrow(
-        `Failed to fetch recipe details for recipe ID "${testRecipeId}"`
-      );
-    });
-
-    it('should handle non-Error objects gracefully', async () => {
-      (recipeService.getRecipeById as jest.Mock).mockRejectedValue('Unknown error');
-
-      await expect(getRecipeDetails(recipeId)).rejects.toBeDefined();
-    });
+    await expect(getRecipeDetails(recipeId)).rejects.toThrow(
+      `Failed to fetch recipe details for recipe ID "${recipeId}": Recipe not found`
+    );
   });
+
+  it('should propagate error from getRecipeIngredients', async () => {
+    const testError = new Error('Database connection failed');
+
+    const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+    const mockGetRecipeIngredients = jest.mocked(
+      ingredientService.getRecipeIngredients
+    );
+
+    mockGetRecipeById.mockResolvedValue(mockRecipe);
+    mockGetRecipeIngredients.mockRejectedValue(testError);
+
+    await expect(getRecipeDetails(recipeId)).rejects.toThrow(
+      `Failed to fetch recipe details for recipe ID "${recipeId}": Database connection failed`
+    );
+  });
+
+  it('should propagate error from getRecipeSteps', async () => {
+    const testError = new Error('Query timeout');
+
+    const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+    const mockGetRecipeIngredients = jest.mocked(
+      ingredientService.getRecipeIngredients
+    );
+    const mockGetRecipeSteps = jest.mocked(stepsService.getRecipeSteps);
+
+    mockGetRecipeById.mockResolvedValue(mockRecipe);
+    mockGetRecipeIngredients.mockResolvedValue(mockIngredients);
+    mockGetRecipeSteps.mockRejectedValue(testError);
+
+    await expect(getRecipeDetails(recipeId)).rejects.toThrow(
+      `Failed to fetch recipe details for recipe ID "${recipeId}": Query timeout`
+    );
+  });
+
+  it('should propagate error from getRecipeEquipment', async () => {
+    const testError = new Error('Permission denied');
+
+    const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+    const mockGetRecipeIngredients = jest.mocked(
+      ingredientService.getRecipeIngredients
+    );
+    const mockGetRecipeSteps = jest.mocked(stepsService.getRecipeSteps);
+    const mockGetRecipeEquipment = jest.mocked(
+      equipmentService.getRecipeEquipment
+    );
+
+    mockGetRecipeById.mockResolvedValue(mockRecipe);
+    mockGetRecipeIngredients.mockResolvedValue(mockIngredients);
+    mockGetRecipeSteps.mockResolvedValue(mockSteps);
+    mockGetRecipeEquipment.mockRejectedValue(testError);
+
+    await expect(getRecipeDetails(recipeId)).rejects.toThrow(
+      `Failed to fetch recipe details for recipe ID "${recipeId}": Permission denied`
+    );
+  });
+
+  it('should propagate error from getRecipeTags', async () => {
+    const testError = new Error('Service unavailable');
+
+    const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+    const mockGetRecipeIngredients = jest.mocked(
+      ingredientService.getRecipeIngredients
+    );
+    const mockGetRecipeSteps = jest.mocked(stepsService.getRecipeSteps);
+    const mockGetRecipeEquipment = jest.mocked(
+      equipmentService.getRecipeEquipment
+    );
+    const mockGetRecipeTags = jest.mocked(tagsService.getRecipeTags);
+
+    mockGetRecipeById.mockResolvedValue(mockRecipe);
+    mockGetRecipeIngredients.mockResolvedValue(mockIngredients);
+    mockGetRecipeSteps.mockResolvedValue(mockSteps);
+    mockGetRecipeEquipment.mockResolvedValue(mockEquipment);
+    mockGetRecipeTags.mockRejectedValue(testError);
+
+    await expect(getRecipeDetails(recipeId)).rejects.toThrow(
+      `Failed to fetch recipe details for recipe ID "${recipeId}": Service unavailable`
+    );
+  });
+
+  it('should include recipeId in error message for debugging', async () => {
+    const testRecipeId = 'non-existent-recipe';
+    const testError = new Error('Not found');
+
+    const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+
+    mockGetRecipeById.mockRejectedValue(testError);
+
+    await expect(getRecipeDetails(testRecipeId)).rejects.toThrow(
+      `Failed to fetch recipe details for recipe ID "${testRecipeId}"`
+    );
+  });
+
+  it('should handle non-Error objects gracefully', async () => {
+    const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+
+    mockGetRecipeById.mockRejectedValue('Unknown error');
+
+    await expect(getRecipeDetails(recipeId)).rejects.toBeDefined();
+  });
+});
 
   describe('input validation', () => {
     it('should throw error when recipeId is empty string', async () => {
@@ -367,11 +462,17 @@ describe('getRecipeDetails', () => {
     });
 
     it('should accept valid recipeId', async () => {
-      (recipeService.getRecipeById as jest.Mock).mockResolvedValue(mockRecipe);
-      (ingredientService.getRecipeIngredients as jest.Mock).mockResolvedValue([]);
-      (stepsService.getRecipeSteps as jest.Mock).mockResolvedValue([]);
-      (equipmentService.getRecipeEquipment as jest.Mock).mockResolvedValue([]);
-      (tagsService.getRecipeTags as jest.Mock).mockResolvedValue([]);
+      const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+      const mockGetRecipeIngredients = jest.mocked(ingredientService.getRecipeIngredients);
+      const mockGetRecipeSteps = jest.mocked(stepsService.getRecipeSteps);
+      const mockGetRecipeEquipment = jest.mocked(equipmentService.getRecipeEquipment);
+      const mockGetRecipeTags = jest.mocked(tagsService.getRecipeTags);
+
+      mockGetRecipeById.mockResolvedValue(mockRecipe);
+      mockGetRecipeIngredients.mockResolvedValue([]);
+      mockGetRecipeSteps.mockResolvedValue([]);
+      mockGetRecipeEquipment.mockResolvedValue([]);
+      mockGetRecipeTags.mockResolvedValue([]);
 
       const result = await getRecipeDetails('valid-id-123');
 
@@ -382,11 +483,17 @@ describe('getRecipeDetails', () => {
 
   describe('data consistency', () => {
     it('should maintain data integrity through transformation', async () => {
-      (recipeService.getRecipeById as jest.Mock).mockResolvedValue(mockRecipe);
-      (ingredientService.getRecipeIngredients as jest.Mock).mockResolvedValue(mockIngredients);
-      (stepsService.getRecipeSteps as jest.Mock).mockResolvedValue(mockSteps);
-      (equipmentService.getRecipeEquipment as jest.Mock).mockResolvedValue(mockEquipment);
-      (tagsService.getRecipeTags as jest.Mock).mockResolvedValue(mockTags);
+      const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+      const mockGetRecipeIngredients = jest.mocked(ingredientService.getRecipeIngredients);
+      const mockGetRecipeSteps = jest.mocked(stepsService.getRecipeSteps);
+      const mockGetRecipeEquipment = jest.mocked(equipmentService.getRecipeEquipment);
+      const mockGetRecipeTags = jest.mocked(tagsService.getRecipeTags);
+
+      mockGetRecipeById.mockResolvedValue(mockRecipe);
+      mockGetRecipeIngredients.mockResolvedValue(mockIngredients);
+      mockGetRecipeSteps.mockResolvedValue(mockSteps);
+      mockGetRecipeEquipment.mockResolvedValue(mockEquipment);
+      mockGetRecipeTags.mockResolvedValue(mockTags);
 
       const result = await getRecipeDetails(recipeId);
 
@@ -405,11 +512,21 @@ describe('getRecipeDetails', () => {
         { ...mockSteps[2], order: 3 },
       ];
 
-      (recipeService.getRecipeById as jest.Mock).mockResolvedValue(mockRecipe);
-      (ingredientService.getRecipeIngredients as jest.Mock).mockResolvedValue(mockIngredients);
-      (stepsService.getRecipeSteps as jest.Mock).mockResolvedValue(orderedSteps);
-      (equipmentService.getRecipeEquipment as jest.Mock).mockResolvedValue(mockEquipment);
-      (tagsService.getRecipeTags as jest.Mock).mockResolvedValue(mockTags);
+      const mockGetRecipeById = jest.mocked(recipeService.getRecipeById);
+      const mockGetRecipeIngredients = jest.mocked(
+        ingredientService.getRecipeIngredients
+      );
+      const mockGetRecipeSteps = jest.mocked(stepsService.getRecipeSteps);
+      const mockGetRecipeEquipment = jest.mocked(
+        equipmentService.getRecipeEquipment
+      );
+      const mockGetRecipeTags = jest.mocked(tagsService.getRecipeTags);
+
+      mockGetRecipeById.mockResolvedValue(mockRecipe);
+      mockGetRecipeIngredients.mockResolvedValue(mockIngredients);
+      mockGetRecipeSteps.mockResolvedValue(orderedSteps);
+      mockGetRecipeEquipment.mockResolvedValue(mockEquipment);
+      mockGetRecipeTags.mockResolvedValue(mockTags);
 
       const result = await getRecipeDetails(recipeId);
 

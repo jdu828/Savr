@@ -18,6 +18,7 @@ import { RecipeDetails } from '../../types/recipeDetails.types';
  * @returns Promise resolving to a RecipeDetails object containing all recipe data
  * @throws Error if any underlying service fails or recipe is not found
  * 
+ * 
  * @example
  * ```typescript
  * const recipeDetails = await getRecipeDetails('recipe-123');
