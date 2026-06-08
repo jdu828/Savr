@@ -11,7 +11,5 @@ export async function getRecipeById(recipeId: string) : Promise<Recipe> {
   if (error) throw new Error(error.message);
 
   if (!data) throw new Error('Recipe not found');
-
-  console.log('Fetched recipe:', data); // Debug log to check the fetched data
   return data;
 }

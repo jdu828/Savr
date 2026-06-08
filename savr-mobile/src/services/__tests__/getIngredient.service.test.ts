@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
 describe('getIngredientById', () => {
+  // Every test will start with a clean slate for the supabase mock
   beforeEach(() => {
     jest.clearAllMocks();
     (supabase as any).from = jest.fn();
@@ -17,6 +18,11 @@ describe('getIngredientById', () => {
 
     const mockFrom = supabase.from as jest.MockedFunction<any>;
 
+    // Mock the chain of calls: from -> select -> eq -> single
+    // .from('ingredients')
+    // .select('*')
+    // .eq('id', ingredientId)
+    // .single();
     const single = jest.fn();
     const eq = jest.fn(() => ({ single }));
     const select = jest.fn(() => ({ eq }));
@@ -24,7 +30,7 @@ describe('getIngredientById', () => {
     mockFrom.mockReturnValue({ select } as any);
 
     single.mockImplementation(async () => ({
-        data: [],
+        data: mockIngredient,
         error: null,
     }));
 

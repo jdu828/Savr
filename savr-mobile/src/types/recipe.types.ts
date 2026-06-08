@@ -19,7 +19,7 @@ export type RecipeTagRow = {
   id: string;
   recipe_id: string | null;
   tag_id: string | null;
-  tags: { name: string }[] | null;
+  tags: { name: string, type: string }[] | null;
 };
 
 export type RecipeTag = {
@@ -27,6 +27,7 @@ export type RecipeTag = {
   recipeId: string;
   tagId: string;
   name: string;
+  type: string;
 };
 
 export type Recipe = {
