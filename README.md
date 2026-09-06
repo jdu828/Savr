@@ -1,4 +1,4 @@
-# Recipe App
+# SAVR
 
 A React Native mobile application built with **Expo**, **Node.js**, **TypeScript**, **Jest**, and **Supabase**.
 
