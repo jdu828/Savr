@@ -88,7 +88,7 @@ The Supabase client is initialized in the application's Supabase/lib configurati
 Start the Expo development server:
 
 ```bash
-npx expo start
+npx expo start --go
 ```
 
 Expo will display options for opening the application.
