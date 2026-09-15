@@ -109,18 +109,22 @@ describe('getRecipeDetails', () => {
       recipeId: 'recipe-123',
       tagId: 'tag-001',
       name: 'Italian',
+      type: 'cuisine',
     },
     {
       recipeTagId: 'tag-2',
       recipeId: 'recipe-123',
       tagId: 'tag-002',
       name: 'Pasta',
+      type: 'ingredient',
+
     },
     {
       recipeTagId: 'tag-3',
       recipeId: 'recipe-123',
       tagId: 'tag-003',
-      name: 'Quick',
+      name: 'dinner',
+      type: 'course',
     },
   ];
 

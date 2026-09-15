@@ -108,6 +108,12 @@ npx expo start -c
 
 ---
 
+# Test for TypeScript Errors:
+
+npx tsc --noEmit
+
+---
+
 # Project Architecture
 
 The application follows this general flow:

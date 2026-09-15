@@ -1,15 +1,44 @@
-import { View, Text } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+
+import { Recipe } from '../src/types/recipe.types';
+import { RecipeCardStack } from '../src/components/recipe/RecipeCardStack';
+
+const mockRecipes: Recipe[] = [
+  {
+    id: '1',
+    title: 'Creamy Garlic Pasta',
+    description: 'A simple creamy pasta with garlic and parmesan.',
+    skill_level: 2,
+    prep_time_minutes: 10,
+    cook_time_minutes: 20,
+    total_time_minutes: 30,
+    servings: 2,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    title: 'Crispy Chicken Tacos',
+    description: 'Crispy chicken tacos with fresh toppings and lime.',
+    skill_level: 2,
+    prep_time_minutes: 15,
+    cook_time_minutes: 20,
+    total_time_minutes: 35,
+    servings: 4,
+    created_at: new Date().toISOString(),
+  },
+];
 
 export default function HomeScreen() {
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <Text>Hello World</Text>
+    <View style={styles.container}>
+      <RecipeCardStack recipes={mockRecipes} />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+});
