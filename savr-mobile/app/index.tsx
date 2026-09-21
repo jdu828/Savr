@@ -1,7 +1,8 @@
+import React from 'react';
 import { StyleSheet, View } from 'react-native';
-
+import { StatusBar } from 'expo-status-bar';
 import { Recipe } from '../src/types/recipe.types';
-import { RecipeCardStack } from '../src/components/recipe/RecipeCardStack';
+import { ScreenCardStack } from '../src/components/swipe_screen/ScreenCardStack';
 
 const mockRecipes: Recipe[] = [
   {
@@ -31,7 +32,9 @@ const mockRecipes: Recipe[] = [
 export default function HomeScreen() {
   return (
     <View style={styles.container}>
-      <RecipeCardStack recipes={mockRecipes} />
+      <StatusBar style="dark" />
+
+      <ScreenCardStack recipes={mockRecipes} />
     </View>
   );
 }
@@ -39,6 +42,5 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
   },
 });

@@ -39,5 +39,5 @@ export type Recipe = {
   cook_time_minutes: number | null;
   total_time_minutes: number | null;
   servings: number | null;
-  created_at: string;
+  created_at: string | null;
 };
