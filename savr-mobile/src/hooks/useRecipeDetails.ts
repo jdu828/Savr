@@ -2,6 +2,13 @@ import { getRecipeDetails } from '../services/recipes/getRecipeDetails.service';
 import { useState, useEffect, useCallback } from 'react';
 import { RecipeDetails } from '../types/recipeDetails.types';
 
+/**
+ * Hook to get all the details (recipe info, ingredients, steps, equipment, tags)
+ * into one singular RecipeDetails object
+ * RecipeDetails Object contains .recipe/.ingredients/.steps/.equipment/.tags array fields
+ * @param recipeId The ID of the recipe you wish to query
+ * @returns RecipeDetails object containing all recipe info
+ */
 export function useRecipeDetails(recipeId: string) {
     const [recipeDetails, setRecipeDetails] = useState<RecipeDetails | null>(null);
     const [loading, setLoading] = useState<boolean>(true);

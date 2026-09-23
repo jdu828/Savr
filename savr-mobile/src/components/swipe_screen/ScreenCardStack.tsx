@@ -7,6 +7,8 @@ import {
 } from 'react-native-gesture-handler';
 
 import Animated, {
+  Extrapolation,
+  interpolate,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -14,7 +16,9 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { scheduleOnRN } from 'react-native-worklets';
+
 import { Recipe } from '../../types/recipe.types';
+import { RecipeScreenContent } from './RecipeScreenContent';
 import { ScreenCard } from './ScreenCard';
 
 interface ScreenCardStackProps {
@@ -22,173 +26,370 @@ interface ScreenCardStackProps {
 }
 
 const SWIPE_THRESHOLD = 120;
+const SWIPE_DURATION = 250;
 
-/**
- * Displays and manages a stack of full-screen cards.
- *
- * ScreenCardStack is responsible for:
- * - determining which card is currently active
- * - displaying the next card underneath
- * - handling horizontal swipe gestures
- * - animating the active card
- * - advancing to the next item after a completed swipe
- *
- * ScreenCardStack does not define the visual content of a card.
- * ScreenCard is responsible for the card UI itself.
- */
+const PEEK_OFFSET = 24;
+const BACK_CARD_SCALE = 0.96;
+
+const EXIT_DISTANCE_MULTIPLIER = 1.2;
+
 export function ScreenCardStack({
   recipes,
 }: ScreenCardStackProps) {
-  // Tracks the index of the currently active card.
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Gets the screen width for calculating the swipe exit distance.
   const { width } = useWindowDimensions();
 
-  // Stores the active card's horizontal translation.
+  /*
+   * Horizontal gesture translation.
+   *
+   * 0    = centered
+   * < 0  = left
+   * > 0  = right
+   */
   const translateX = useSharedValue(0);
 
-  // Gets the data for the currently active card.
-  const currentRecipe = recipes[currentIndex];
-
-  // Gets the data for the next card in the stack.
-  const nextRecipe = recipes[currentIndex + 1];
-
-  /**
-   * Advances the stack to the next card after a completed swipe.
-   *
-   * The function runs on the JavaScript thread after the swipe
-   * animation has finished.
+  /*
+   * ----------------------------------------
+   * CURRENT CARD
+   * ----------------------------------------
    */
-  const moveToNextCard = () => {
-    setCurrentIndex((index) => index + 1);
-
-    // Reset the horizontal position for the newly active card.
-    translateX.value = 0;
-  };
-
-  /**
-   * Defines the horizontal swipe gesture for the active card.
-   *
-   * The gesture responds only to horizontal movement.
-   * Vertical movement causes the gesture to fail.
-   */
-  const gesture = Gesture.Pan()
-    // Require a small amount of horizontal movement before activating.
-    .activeOffsetX([-10, 10])
-
-    // Prevent the gesture from activating during vertical movement.
-    .failOffsetY([-20, 20])
-
-    // Move the active card with the user's finger.
-    .onUpdate((event) => {
-      translateX.value = event.translationX;
-    })
-
-    // Determine what happens when the user releases the card.
-    .onEnd(() => {
-      // Dismiss the card if the swipe passes the required threshold.
-      if (Math.abs(translateX.value) >= SWIPE_THRESHOLD) {
-        // Positive values represent a right swipe.
-        // Negative values represent a left swipe.
-        const direction = translateX.value > 0 ? 1 : -1;
-
-        // Animate the card completely off-screen.
-        translateX.value = withTiming(
-          direction * width * 1.2,
-          {
-            duration: 250,
-          },
-          (finished) => {
-            // Advance the stack after the exit animation completes.
-            if (finished) {
-              scheduleOnRN(moveToNextCard);
-            }
-          },
-        );
-      } else {
-        // Return the card to its original position when the swipe
-        // does not pass the dismissal threshold.
-        translateX.value = withSpring(0);
-      }
-    });
-
-  /**
-   * Creates the animated style for the active card.
-   *
-   * The card translates horizontally with the gesture and rotates
-   * slightly to create a Tinder-style swipe interaction.
-   */
-  const animatedCardStyle = useAnimatedStyle(() => {
-    // Convert horizontal movement into a small rotation.
+  const currentCardStyle = useAnimatedStyle(() => {
     const rotation = (translateX.value / width) * 10;
 
     return {
       transform: [
-        { translateX: translateX.value },
-        { rotate: `${rotation}deg` },
+        {
+          translateX: translateX.value,
+        },
+        {
+          rotate: `${rotation}deg`,
+        },
       ],
     };
   });
 
-  // Render nothing when the stack has no cards remaining.
-  if (!currentRecipe) {
+  /*
+   * ----------------------------------------
+   * PREVIOUS CARD
+   * ----------------------------------------
+   *
+   * The previous card is sitting slightly
+   * to the right at rest.
+   *
+   * As we swipe right it moves toward center.
+   */
+  const previousCardStyle = useAnimatedStyle(() => {
+    const progress = interpolate(
+      translateX.value,
+      [0, width],
+      [0, 1],
+      Extrapolation.CLAMP,
+    );
+
+    return {
+      opacity: progress,
+
+      transform: [
+        {
+          translateX: interpolate(
+            progress,
+            [0, 1],
+            [PEEK_OFFSET, 0],
+          ),
+        },
+        {
+          scale: interpolate(
+            progress,
+            [0, 1],
+            [BACK_CARD_SCALE, 1],
+          ),
+        },
+      ],
+    };
+  });
+
+  /*
+   * ----------------------------------------
+   * NEXT CARD
+   * ----------------------------------------
+   *
+   * The next card is sitting slightly
+   * to the left at rest.
+   *
+   * As we swipe left it moves toward center.
+   */
+  const nextCardStyle = useAnimatedStyle(() => {
+    const progress = interpolate(
+      translateX.value,
+      [-width, 0],
+      [1, 0],
+      Extrapolation.CLAMP,
+    );
+
+    return {
+      opacity: progress,
+
+      transform: [
+        {
+          translateX: interpolate(
+            progress,
+            [0, 1],
+            [-PEEK_OFFSET, 0],
+          ),
+        },
+        {
+          scale: interpolate(
+            progress,
+            [0, 1],
+            [BACK_CARD_SCALE, 1],
+          ),
+        },
+      ],
+    };
+  });
+
+  /*
+   * ----------------------------------------
+   * COMPLETE SWIPE
+   * ----------------------------------------
+   *
+   * IMPORTANT:
+   *
+   * We don't reset translateX until AFTER
+   * React has changed the index AND the
+   * new card is rendered.
+   */
+  const completeSwipe = (newIndex: number) => {
+    /*
+     * Change which recipe is active.
+     */
+    setCurrentIndex(newIndex);
+
+    /*
+     * We intentionally do NOT reset translateX
+     * here.
+     *
+     * The old outgoing position remains until
+     * the next frame.
+     */
+    requestAnimationFrame(() => {
+      translateX.value = 0;
+    });
+  };
+
+  /*
+   * ----------------------------------------
+   * GESTURE
+   * ----------------------------------------
+   */
+  const gesture = Gesture.Pan()
+    .activeOffsetX([-10, 10])
+    .failOffsetY([-20, 20])
+    .onUpdate((event) => {
+      translateX.value = event.translationX;
+    })
+    .onEnd(() => {
+      const translation = translateX.value;
+
+      /*
+       * -----------------------------
+       * LEFT
+       * -----------------------------
+       */
+      if (translation <= -SWIPE_THRESHOLD) {
+        /*
+         * Last card boundary.
+         */
+        if (currentIndex >= recipes.length - 1) {
+          translateX.value = withSpring(0);
+          return;
+        }
+
+        translateX.value = withTiming(
+          -width * EXIT_DISTANCE_MULTIPLIER,
+          {
+            duration: SWIPE_DURATION,
+          },
+          (finished) => {
+            if (finished) {
+              scheduleOnRN(
+                completeSwipe,
+                currentIndex + 1,
+              );
+            }
+          },
+        );
+
+        return;
+      }
+
+      /*
+       * -----------------------------
+       * RIGHT
+       * -----------------------------
+       */
+      if (translation >= SWIPE_THRESHOLD) {
+        /*
+         * First card boundary.
+         */
+        if (currentIndex <= 0) {
+          translateX.value = withSpring(0);
+          return;
+        }
+
+        translateX.value = withTiming(
+          width * EXIT_DISTANCE_MULTIPLIER,
+          {
+            duration: SWIPE_DURATION,
+          },
+          (finished) => {
+            if (finished) {
+              scheduleOnRN(
+                completeSwipe,
+                currentIndex - 1,
+              );
+            }
+          },
+        );
+
+        return;
+      }
+
+      /*
+       * -----------------------------
+       * CANCELLED SWIPE
+       * -----------------------------
+       */
+      translateX.value = withSpring(0);
+    });
+
+  if (recipes.length === 0) {
     return null;
   }
 
-  return (
-    <View style={ScreenCardStack_Styles.container}>
-      {/* Render the next card underneath the active card. */}
-      {nextRecipe && (
-        <View
-          style={[
-            ScreenCardStack_Styles.card,
-            ScreenCardStack_Styles.nextCard,
-          ]}
-        >
-          <ScreenCard>
-            {/* Temporary recipe content for the MVP. */}
-            <View>
-              {/* Recipe-specific UI will eventually be its own component. */}
-            </View>
-          </ScreenCard>
-        </View>
-      )}
+  /*
+   * Only render the three recipes surrounding
+   * the current recipe.
+   */
+  const startIndex = Math.max(
+    0,
+    currentIndex - 1,
+  );
 
-      {/* Attach the horizontal swipe gesture to the active card. */}
-      <GestureDetector gesture={gesture}>
-        <Animated.View
-          style={[
-            ScreenCardStack_Styles.card,
-            animatedCardStyle,
-          ]}
-        >
-          <ScreenCard>
-            {/* Temporary recipe content for the MVP. */}
-            <View>
-              {/* Recipe-specific UI will eventually be its own component. */}
-            </View>
-          </ScreenCard>
-        </Animated.View>
-      </GestureDetector>
+  const endIndex = Math.min(
+    recipes.length - 1,
+    currentIndex + 1,
+  );
+
+  const visibleIndices: number[] = [];
+
+  for (
+    let index = startIndex;
+    index <= endIndex;
+    index += 1
+  ) {
+    visibleIndices.push(index);
+  }
+
+  return (
+    <View style={styles.container}>
+      {visibleIndices.map((index) => {
+        const recipe = recipes[index];
+
+        /*
+         * ------------------------------------
+         * CURRENT
+         * ------------------------------------
+         */
+        if (index === currentIndex) {
+          return (
+            <GestureDetector
+              key={recipe.id}
+              gesture={gesture}
+            >
+              <Animated.View
+                style={[
+                  styles.card,
+                  styles.currentCard,
+                  currentCardStyle,
+                ]}
+              >
+                <ScreenCard>
+                  <RecipeScreenContent
+                    recipe={recipe}
+                  />
+                </ScreenCard>
+              </Animated.View>
+            </GestureDetector>
+          );
+        }
+
+        /*
+         * ------------------------------------
+         * PREVIOUS
+         * ------------------------------------
+         */
+        if (index === currentIndex - 1) {
+          return (
+            <Animated.View
+              key={recipe.id}
+              style={[
+                styles.card,
+                styles.backgroundCard,
+                previousCardStyle,
+              ]}
+            >
+              <ScreenCard>
+                <RecipeScreenContent
+                  recipe={recipe}
+                />
+              </ScreenCard>
+            </Animated.View>
+          );
+        }
+
+        /*
+         * ------------------------------------
+         * NEXT
+         * ------------------------------------
+         */
+        return (
+          <Animated.View
+            key={recipe.id}
+            style={[
+              styles.card,
+              styles.backgroundCard,
+              nextCardStyle,
+            ]}
+          >
+            <ScreenCard>
+              <RecipeScreenContent
+                recipe={recipe}
+              />
+            </ScreenCard>
+          </Animated.View>
+        );
+      })}
     </View>
   );
 }
 
-const ScreenCardStack_Styles = StyleSheet.create({
-  // Makes the card stack fill the entire screen.
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'relative',
   },
 
-  // Positions each card to completely fill the stack.
   card: {
     ...StyleSheet.absoluteFill,
   },
 
-  // Places the upcoming card behind the active card.
-  nextCard: {
+  backgroundCard: {
     zIndex: 0,
+  },
+
+  currentCard: {
+    zIndex: 2,
   },
 });
