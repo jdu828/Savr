@@ -18,6 +18,7 @@ import Animated, {
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { Recipe } from '../../types/recipe.types';
+import { RecipeContentPager } from './RecipeContentPager'
 import { RecipeScreenContent } from './RecipeScreenContent';
 import { ScreenCard } from './ScreenCard';
 
@@ -316,7 +317,7 @@ export function ScreenCardStack({
                 ]}
               >
                 <ScreenCard>
-                  <RecipeScreenContent
+                  <RecipeContentPager
                     recipe={recipe}
                   />
                 </ScreenCard>

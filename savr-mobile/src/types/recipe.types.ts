@@ -4,7 +4,7 @@ export type RecipeStepRow = {
   id: string;
   recipe_id: string | null;
   step_number: number | null;
-  instruction: string | null;
+  instruction_text: string | null;
 };
 
 // Frontend model (camelCase)
