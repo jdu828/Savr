@@ -6,7 +6,7 @@ function mapRowToStep(row: RecipeStepRow): RecipeStep {
     stepId: row.id,
     recipeId: row.recipe_id ?? '',
     order: row.step_number ?? 0,
-    instruction: row.instruction ?? '',
+    instruction: row.instruction_text ?? '',
   };
 }
 
@@ -16,6 +16,12 @@ export async function getRecipeSteps(recipeId: string): Promise<RecipeStep[]> {
     .select('*')
     .eq('recipe_id', recipeId)
     .order('step_number', { ascending: true });
+    
+    console.log('getRecipeSteps:', {
+      recipeId,
+      data,
+      error,
+    });
 
   if (error) throw new Error(error.message);
 
