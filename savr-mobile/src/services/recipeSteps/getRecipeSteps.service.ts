@@ -16,6 +16,12 @@ export async function getRecipeSteps(recipeId: string): Promise<RecipeStep[]> {
     .select('*')
     .eq('recipe_id', recipeId)
     .order('step_number', { ascending: true });
+    
+    console.log('getRecipeSteps:', {
+      recipeId,
+      data,
+      error,
+    });
 
   if (error) throw new Error(error.message);
 
