@@ -6,7 +6,7 @@ function mapRowToStep(row: RecipeStepRow): RecipeStep {
     stepId: row.id,
     recipeId: row.recipe_id ?? '',
     order: row.step_number ?? 0,
-    instruction: row.instruction ?? '',
+    instruction: row.instruction_text ?? '',
   };
 }
 
