@@ -35,12 +35,17 @@ export async function login({
   password,
 }: LoginInput) {
   const normalizedIdentifier = identifier.trim();
+  
+  if (!normalizedIdentifier || !password) {
+    throw new Error('Email/username and password are required.');
+  }
 
   const loginIdentifier = normalizedIdentifier.includes('@')
     ? normalizedIdentifier.toLowerCase()
     : normalizedIdentifier;
 
   const { data, error } =
+    // Call the Supabase auth client to invoke the login Edge Function with the provided credentials.
     await supabase.functions.invoke<LoginResponse>('login', {
       body: {
         identifier: loginIdentifier,
@@ -54,6 +59,7 @@ export async function login({
     );
   }
 
+  // Persist the session in the local Supabase client for subsequent authenticated requests.
   const { data: sessionData, error: sessionError } =
     await supabase.auth.setSession({
       access_token: data.session.access_token,

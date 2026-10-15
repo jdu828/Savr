@@ -1,0 +1,4 @@
+{
+  "deno.enablePaths": ["./savr-mobile/supabase/functions"],
+  "deno.config": "./savr-mobile/supabase/functions/deno.json"
+}
