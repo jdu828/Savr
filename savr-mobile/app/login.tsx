@@ -1,13 +1,16 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  Alert,
+  ActivityIndicator,
   Pressable,
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from 'react-native';
+import { router } from 'expo-router';
+import { useLogin } from '../src/hooks/useLogin';
+import { useSignUp } from '../src/hooks/useSignUp';
 
 const PLACEHOLDER_TILES = [
   { emoji: '🥕', label: 'CHOP', color: '#8C6548' },
@@ -25,6 +28,92 @@ const PLACEHOLDER_TILES = [
 ];
 
 export default function LoginScreen() {
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const {
+    isLoading,
+    error,
+    submitLogin,
+    clearError,
+  } = useLogin();
+
+  const {
+    isLoading: isSigningUp,
+    error: signUpError,
+    isConfirmationPending,
+    submitSignUp,
+    clearError: clearSignUpError,
+  } = useSignUp();
+
+  const isBusy = isLoading || isSigningUp;
+  const activeError = isSignUp ? signUpError : error;
+
+  async function handleSubmit() {
+    setNotice(null);
+
+    if (isSignUp) {
+      const success = await submitSignUp(
+        identifier,
+        password,
+        username.trim() || undefined,
+      );
+
+      if (!success) {
+        return;
+      }
+
+      if (isConfirmationPending) {
+        setNotice(
+          'Account created. Check your email for a confirmation link before logging in.',
+        );
+        return;
+      }
+
+      // If email confirmation is disabled, signup may establish a session.
+      router.replace('/');
+      return;
+    }
+
+    const success = await submitLogin(identifier, password);
+
+    if (success) {
+      router.replace('/');
+    }
+  }
+
+  function toggleMode() {
+    setIsSignUp((current) => !current);
+    setNotice(null);
+    clearError();
+    clearSignUpError();
+  }
+
+  function handleIdentifierChange(value: string) {
+    setIdentifier(value);
+    setNotice(null);
+
+    if (isSignUp) {
+      if (signUpError) clearSignUpError();
+    } else if (error) {
+      clearError();
+    }
+  }
+
+  function handlePasswordChange(value: string) {
+    setPassword(value);
+    setNotice(null);
+
+    if (isSignUp) {
+      if (signUpError) clearSignUpError();
+    } else if (error) {
+      clearError();
+    }
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -45,52 +134,134 @@ export default function LoginScreen() {
         ))}
       </View>
 
-      {/* Darkens the background so the foreground text stays readable. */}
+      {/* Darkens the background to keep text readable. */}
       <View style={styles.darkOverlay} />
 
-      {/* Content sits directly over the background, without a panel. */}
+      {/* Login and registration content share this screen. */}
       <View style={styles.content}>
         <View style={styles.brand}>
           <Text style={styles.logo}>savr.</Text>
 
           <Text style={styles.headline}>
-            Your next favorite meal starts here.
+            {isSignUp
+              ? 'Your next favorite meal starts here.'
+              : 'Your next favorite meal starts here.'}
           </Text>
 
           <Text style={styles.subtitle}>
-            Discover food you'll love to make.
+            {isSignUp
+              ? 'Create an account and discover food you love.'
+              : "Discover food you'll love to make."}
           </Text>
+        </View>
+
+        <View style={styles.form}>
+          {/* Optional username appears only during registration. */}
+          {isSignUp && (
+            <TextInput
+              style={styles.input}
+              placeholder="Username (optional)"
+              placeholderTextColor="rgba(245,241,232,0.65)"
+              value={username}
+              onChangeText={(value) => {
+                setUsername(value);
+                setNotice(null);
+                if (signUpError) clearSignUpError();
+              }}
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!isBusy}
+              returnKeyType="next"
+              accessibilityLabel="Username, optional"
+            />
+          )}
+
+          <TextInput
+            style={styles.input}
+            placeholder={
+              isSignUp ? 'Email address' : 'Email or username'
+            }
+            placeholderTextColor="rgba(245,241,232,0.65)"
+            value={identifier}
+            onChangeText={handleIdentifierChange}
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete={isSignUp ? 'email' : 'username'}
+            textContentType={isSignUp ? 'emailAddress' : 'username'}
+            keyboardType={isSignUp ? 'email-address' : 'default'}
+            editable={!isBusy}
+            returnKeyType="next"
+            accessibilityLabel={
+              isSignUp ? 'Email address' : 'Email or username'
+            }
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="rgba(245,241,232,0.65)"
+            value={password}
+            onChangeText={handlePasswordChange}
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete={
+              isSignUp ? 'new-password' : 'current-password'
+            }
+            textContentType={
+              isSignUp ? 'newPassword' : 'password'
+            }
+            editable={!isBusy}
+            returnKeyType="go"
+            onSubmitEditing={handleSubmit}
+            accessibilityLabel="Password"
+          />
+
+          {activeError ? (
+            <Text style={styles.errorText} accessibilityRole="alert">
+              {activeError}
+            </Text>
+          ) : null}
+
+          {notice ? (
+            <Text style={styles.noticeText} accessibilityRole="alert">
+              {notice}
+            </Text>
+          ) : null}
         </View>
 
         <View style={styles.actions}>
           <Pressable
             accessibilityRole="button"
+            disabled={isBusy}
             style={({ pressed }) => [
               styles.primaryButton,
               pressed && styles.buttonPressed,
+              isBusy && styles.buttonDisabled,
             ]}
-            onPress={() =>
-              Alert.alert('Log in', 'Login form coming next.')
-            }
+            onPress={handleSubmit}
           >
-            <Text style={styles.primaryButtonText}>Log in</Text>
+            {isBusy ? (
+              <ActivityIndicator color="#24231F" />
+            ) : (
+              <Text style={styles.primaryButtonText}>
+                {isSignUp ? 'Create account' : 'Log in'}
+              </Text>
+            )}
           </Pressable>
 
           <Pressable
             accessibilityRole="button"
+            disabled={isBusy}
             style={({ pressed }) => [
               styles.secondaryButton,
               pressed && styles.buttonPressed,
+              isBusy && styles.buttonDisabled,
             ]}
-            onPress={() =>
-              Alert.alert(
-                'Create account',
-                'Registration form coming next.',
-              )
-            }
+            onPress={toggleMode}
           >
             <Text style={styles.secondaryButtonText}>
-              Create account
+              {isSignUp ? 'Back to log in' : 'Create account'}
             </Text>
           </Pressable>
         </View>
@@ -147,7 +318,7 @@ const styles = StyleSheet.create({
 
   brand: {
     alignItems: 'center',
-    marginBottom: 44,
+    marginBottom: 28,
     maxWidth: 340,
   },
 
@@ -156,7 +327,7 @@ const styles = StyleSheet.create({
     fontSize: 54,
     fontWeight: '800',
     letterSpacing: -3,
-    marginBottom: 20,
+    marginBottom: 16,
   },
 
   headline: {
@@ -174,6 +345,38 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     textAlign: 'center',
     marginTop: 12,
+  },
+
+  form: {
+    width: '100%',
+    maxWidth: 340,
+    gap: 12,
+    marginBottom: 18,
+  },
+
+  input: {
+    minHeight: 54,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(245,241,232,0.55)',
+    backgroundColor: 'rgba(20,19,16,0.3)',
+    paddingHorizontal: 18,
+    color: '#F5F1E8',
+    fontSize: 16,
+  },
+
+  errorText: {
+    color: '#FFD2CC',
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
+  },
+
+  noticeText: {
+    color: '#F5F1E8',
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
   },
 
   actions: {
@@ -214,5 +417,9 @@ const styles = StyleSheet.create({
 
   buttonPressed: {
     opacity: 0.75,
+  },
+
+  buttonDisabled: {
+    opacity: 0.6,
   },
 });
