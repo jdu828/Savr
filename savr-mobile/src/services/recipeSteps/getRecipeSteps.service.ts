@@ -17,10 +17,19 @@ export async function getRecipeSteps(recipeId: string): Promise<RecipeStep[]> {
     .eq('recipe_id', recipeId)
     .order('step_number', { ascending: true });
     
-    console.log('getRecipeSteps:', {
+    console.log('[getRecipeSteps] Query result:', {
       recipeId,
-      data,
-      error,
+      stepCount: data?.length ?? 0,
+      hasError: !!error,
+      error: error
+        ? {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint,
+          }
+        : null,
+      steps: data,
     });
 
   if (error) throw new Error(error.message);

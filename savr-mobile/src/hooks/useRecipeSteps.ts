@@ -28,7 +28,12 @@ export function useRecipeSteps(
 
       const recipeSteps = await getRecipeSteps(recipeId);
 
-      console.log('recipeSteps received by hook:', recipeSteps);
+      console.log('[useRecipeDetails] Recipe steps received:', {
+        recipeId,
+        stepCount: recipeSteps.length,
+        isEmpty: recipeSteps.length === 0,
+        steps: recipeSteps,
+      });
       setSteps(recipeSteps);
 
       return recipeSteps;

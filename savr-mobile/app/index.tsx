@@ -1,6 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { BottomNavigationBar } from '../src/components/navigation/BottomNavigationBar';
 
 import { ScreenCardStack } from '../src/components/swipe_screen/ScreenCardStack';
 import { useRecipeDiscovery } from '../src/hooks/useRecipeDiscovery';
@@ -30,6 +31,7 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <StatusBar style="dark" />
       <ScreenCardStack recipes={recipes} />
+      <BottomNavigationBar />
     </View>
   );
 }
