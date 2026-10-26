@@ -35,14 +35,13 @@
     "react-native-screens": "~4.30.0",
     "react-native-svg": "15.16.0",
     "react-native-url-polyfill": "^3.0.0",
-    "react-native-vector-icons": "^10.3.0",
     "react-native-web": "^0.21.4",
     "react-native-worklets": "0.13.0",
     "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@react-native/jest-preset": "^0.86.3",
-    "@testing-library/react-native": "^13.3.3",
+    "@testing-library/react-native": "^14.x",
     "@types/jest": "30.0.0",
     "@types/node": "^25.9.1",
     "@types/react": "~19.3.0",
