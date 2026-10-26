@@ -30,9 +30,7 @@ export function BottomNavigationBar() {
 
       <Pressable
         style={styles.button}
-        onPress={() => {
-          // TODO: Navigate to the profile page when it exists.
-        }}
+        onPress={() => router.push('/profile')}
         accessibilityRole="button"
         accessibilityLabel="Profile"
       >
@@ -67,6 +65,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
+
     paddingVertical: 4,
   },
   label: {
