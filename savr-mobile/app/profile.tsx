@@ -1,16 +1,32 @@
 
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Pressable } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@react-native-vector-icons/feather';
+import { useRouter } from 'expo-router';
 
-
+import { useLogout } from '../src/hooks/useLogout';
 import { BottomNavigationBar } from '../src/components/navigation/BottomNavigationBar';
 
 export default function ProfileScreen() {
+  const router = useRouter();
+  const {
+    isLoading,
+    error,
+    submitLogout,
+  } = useLogout();
+
   // Temporary display values until Supabase profile data is connected.
   const username = 'username';
   const personalName = 'Your Name';
+
+  async function handleLogout(): Promise<void> {
+    const success = await submitLogout();
+
+    if (success) {
+      router.replace('/login');
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -39,6 +55,31 @@ export default function ProfileScreen() {
           <Text style={styles.label}>Username</Text>
           <Text style={styles.value}>@{username}</Text>
         </View>
+      </View>
+
+      <View style={styles.logoutSection}>
+        {error && (
+          <Text style={styles.errorText} accessibilityRole="alert">
+            {error}
+          </Text>
+        )}
+
+        <Pressable
+          style={[
+            styles.logoutButton,
+            isLoading && styles.logoutButtonDisabled,
+          ]}
+          onPress={handleLogout}
+          disabled={isLoading}
+          accessibilityRole="button"
+          accessibilityLabel="Log out"
+          accessibilityState={{ disabled: isLoading, busy: isLoading }}
+        >
+          <Feather name="log-out" size={18} color="#B54436" />
+          <Text style={styles.logoutText}>
+            {isLoading ? 'Logging out...' : 'Log out'}
+          </Text>
+        </Pressable>
       </View>
 
       <BottomNavigationBar />
@@ -103,5 +144,30 @@ const styles = StyleSheet.create({
   separator: {
     height: StyleSheet.hairlineWidth,
     backgroundColor: '#E5E0D7',
+  },
+  logoutSection: {
+    marginTop: 28,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    paddingVertical: 16,
+  },
+  logoutButtonDisabled: {
+    opacity: 0.6,
+  },
+  logoutText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#B54436',
+  },
+  errorText: {
+    color: '#B54436',
+    fontSize: 13,
+    marginBottom: 12,
   },
 });

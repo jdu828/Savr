@@ -1,4 +1,3 @@
-
 import { supabase } from '../../lib/supabase';
 import { login } from '../auth/login.service';
 
@@ -48,6 +47,7 @@ describe('login', () => {
     await expect(
       login({
         identifier: '  TEST@EXAMPLE.COM ',
+        identifierType: 'email',
         password: 'SecurePassword123!',
       }),
     ).resolves.toEqual(sessionData);
@@ -55,6 +55,7 @@ describe('login', () => {
     expect(mockInvoke).toHaveBeenCalledWith('login', {
       body: {
         identifier: 'test@example.com',
+        identifierType: 'email',
         password: 'SecurePassword123!',
       },
     });
@@ -89,12 +90,88 @@ describe('login', () => {
 
     await login({
       identifier: '  Crispy_4821  ',
+      identifierType: 'username',
       password: 'SecurePassword123!',
     });
 
     expect(mockInvoke).toHaveBeenCalledWith('login', {
       body: {
         identifier: 'Crispy_4821',
+        identifierType: 'username',
+        password: 'SecurePassword123!',
+      },
+    });
+  });
+
+  it('supports numeric-only usernames without treating them as phone numbers', async () => {
+    const session = {
+      access_token: 'test-access-token',
+      refresh_token: 'test-refresh-token',
+    };
+
+    mockInvoke.mockResolvedValue({
+      data: {
+        user: { id: 'test-user-id' },
+        session,
+      },
+      error: null,
+    } as Awaited<ReturnType<typeof supabase.functions.invoke>>);
+
+    mockSetSession.mockResolvedValue({
+      data: {
+        user: { id: 'test-user-id' },
+        session,
+      },
+      error: null,
+    } as Awaited<ReturnType<typeof supabase.auth.setSession>>);
+
+    await login({
+      identifier: '4821',
+      identifierType: 'username',
+      password: 'SecurePassword123!',
+    });
+
+    expect(mockInvoke).toHaveBeenCalledWith('login', {
+      body: {
+        identifier: '4821',
+        identifierType: 'username',
+        password: 'SecurePassword123!',
+      },
+    });
+  });
+
+  it('supports phone-number login', async () => {
+    const session = {
+      access_token: 'test-access-token',
+      refresh_token: 'test-refresh-token',
+    };
+
+    mockInvoke.mockResolvedValue({
+      data: {
+        user: { id: 'test-user-id' },
+        session,
+      },
+      error: null,
+    } as Awaited<ReturnType<typeof supabase.functions.invoke>>);
+
+    mockSetSession.mockResolvedValue({
+      data: {
+        user: { id: 'test-user-id' },
+        session,
+      },
+      error: null,
+    } as Awaited<ReturnType<typeof supabase.auth.setSession>>);
+
+    await login({
+      identifier: '2025550123',
+      identifierType: 'phone',
+      password: 'SecurePassword123!',
+    });
+
+    expect(mockInvoke).toHaveBeenCalledWith('login', {
+      body: {
+        identifier: '2025550123',
+        identifierType: 'phone',
         password: 'SecurePassword123!',
       },
     });
@@ -109,10 +186,11 @@ describe('login', () => {
     await expect(
       login({
         identifier: 'test@example.com',
+        identifierType: 'email',
         password: 'SecurePassword123!',
       }),
     ).rejects.toThrow(
-      'Invalid email/username or password, or unable to log in.',
+      'Invalid credentials, or unable to log in.',
     );
 
     expect(mockSetSession).not.toHaveBeenCalled();
@@ -130,10 +208,11 @@ describe('login', () => {
     await expect(
       login({
         identifier: 'test@example.com',
+        identifierType: 'email',
         password: 'SecurePassword123!',
       }),
     ).rejects.toThrow(
-      'Invalid email/username or password, or unable to log in.',
+      'Invalid credentials, or unable to log in.',
     );
 
     expect(mockSetSession).not.toHaveBeenCalled();
@@ -143,16 +222,18 @@ describe('login', () => {
     await expect(
       login({
         identifier: '   ',
+        identifierType: 'email',
         password: 'SecurePassword123!',
       }),
-    ).rejects.toThrow('Email/username and password are required.');
+    ).rejects.toThrow('Identifier and password are required.');
 
     await expect(
       login({
         identifier: 'test@example.com',
+        identifierType: 'email',
         password: '',
       }),
-    ).rejects.toThrow('Email/username and password are required.');
+    ).rejects.toThrow('Identifier and password are required.');
 
     expect(mockInvoke).not.toHaveBeenCalled();
   });
@@ -182,6 +263,7 @@ describe('login', () => {
     await expect(
       login({
         identifier: 'test@example.com',
+        identifierType: 'email',
         password: 'SecurePassword123!',
       }),
     ).rejects.toThrow('Session persistence failed');

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
@@ -11,6 +12,8 @@ import {
 import { router } from 'expo-router';
 import { useLogin } from '../src/hooks/useLogin';
 import { useSignUp } from '../src/hooks/useSignUp';
+
+type LoginIdentifierType = 'email' | 'phone' | 'username';
 
 const PLACEHOLDER_TILES = [
   { emoji: '🥕', label: 'CHOP', color: '#8C6548' },
@@ -28,11 +31,19 @@ const PLACEHOLDER_TILES = [
 ];
 
 export default function LoginScreen() {
-  const [identifier, setIdentifier] = useState('');
+  // Keep separate values for each login method.
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [loginUsername, setLoginUsername] = useState('');
+
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+
+  // Track which identifier field the user selected.
+  const [loginIdentifierType, setLoginIdentifierType] =
+    useState<LoginIdentifierType>('email');
 
   const {
     isLoading,
@@ -52,12 +63,75 @@ export default function LoginScreen() {
   const isBusy = isLoading || isSigningUp;
   const activeError = isSignUp ? signUpError : error;
 
+  // Return the value from the explicitly selected login field.
+  function getLoginIdentifier(): string {
+    switch (loginIdentifierType) {
+      case 'email':
+        return email.trim();
+      case 'phone':
+        return phone.trim();
+      case 'username':
+        return loginUsername.trim();
+    }
+  }
+
+  // Validate the selected login identifier before making a request.
+  function validateLoginIdentifier(): string | null {
+    const identifier = getLoginIdentifier();
+
+    if (!identifier) {
+      return 'Please enter your email, phone number, or username.';
+    }
+
+    if (loginIdentifierType === 'email') {
+      // Require text before and after @, plus a domain containing a dot.
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!emailPattern.test(identifier)) {
+        return 'Enter a valid email address, including its domain.';
+      }
+    }
+
+    if (loginIdentifierType === 'phone') {
+      // This field accepts digits only, with no spaces or punctuation.
+      if (!/^\d+$/.test(identifier)) {
+        return 'Phone number must contain digits only.';
+      }
+
+      // E.164 phone numbers contain at most 15 digits.
+      if (identifier.length < 7 || identifier.length > 15) {
+        return 'Enter a phone number containing 7 to 15 digits.';
+      }
+    }
+
+    if (loginIdentifierType === 'username' && !identifier) {
+      return 'Please enter your username.';
+    }
+
+    return null;
+  }
+
   async function handleSubmit() {
     setNotice(null);
 
     if (isSignUp) {
+      // Registration continues to use the email field.
+      const normalizedEmail = email.trim();
+
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!emailPattern.test(normalizedEmail)) {
+        setNotice('Enter a valid email address, including its domain.');
+        return;
+      }
+
+      if (!password) {
+        setNotice('Please enter a password.');
+        return;
+      }
+
       const success = await submitSignUp(
-        identifier,
+        normalizedEmail,
         password,
         username.trim() || undefined,
       );
@@ -78,7 +152,25 @@ export default function LoginScreen() {
       return;
     }
 
-    const success = await submitLogin(identifier, password);
+    // Validate the identifier type the user explicitly selected.
+    const validationError = validateLoginIdentifier();
+
+    if (validationError) {
+      setNotice(validationError);
+      return;
+    }
+
+    if (!password) {
+      setNotice('Please enter your password.');
+      return;
+    }
+
+    // Pass the selected type explicitly; never infer it from the value.
+    const success = await submitLogin(
+      getLoginIdentifier(),
+      loginIdentifierType,
+      password,
+    );
 
     if (success) {
       router.replace('/');
@@ -92,26 +184,40 @@ export default function LoginScreen() {
     clearSignUpError();
   }
 
-  function handleIdentifierChange(value: string) {
-    setIdentifier(value);
+  function handleEmailChange(value: string) {
+    setEmail(value);
     setNotice(null);
 
-    if (isSignUp) {
-      if (signUpError) clearSignUpError();
-    } else if (error) {
-      clearError();
-    }
+    if (error) clearError();
+    if (signUpError) clearSignUpError();
+  }
+
+  function handlePhoneChange(value: string) {
+    setPhone(value);
+    setNotice(null);
+
+    if (error) clearError();
+  }
+
+  function handleUsernameChange(value: string) {
+    setLoginUsername(value);
+    setNotice(null);
+
+    if (error) clearError();
   }
 
   function handlePasswordChange(value: string) {
     setPassword(value);
     setNotice(null);
 
-    if (isSignUp) {
-      if (signUpError) clearSignUpError();
-    } else if (error) {
-      clearError();
-    }
+    if (error) clearError();
+    if (signUpError) clearSignUpError();
+  }
+
+  function selectIdentifierType(type: LoginIdentifierType) {
+    setLoginIdentifierType(type);
+    setNotice(null);
+    clearError();
   }
 
   return (
@@ -143,9 +249,7 @@ export default function LoginScreen() {
           <Text style={styles.logo}>savr.</Text>
 
           <Text style={styles.headline}>
-            {isSignUp
-              ? 'Your next favorite meal starts here.'
-              : 'Your next favorite meal starts here.'}
+            Your next favorite meal starts here.
           </Text>
 
           <Text style={styles.subtitle}>
@@ -156,45 +260,174 @@ export default function LoginScreen() {
         </View>
 
         <View style={styles.form}>
-          {/* Optional username appears only during registration. */}
-          {isSignUp && (
-            <TextInput
-              style={styles.input}
-              placeholder="Username (optional)"
-              placeholderTextColor="rgba(245,241,232,0.65)"
-              value={username}
-              onChangeText={(value) => {
-                setUsername(value);
-                setNotice(null);
-                if (signUpError) clearSignUpError();
-              }}
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!isBusy}
-              returnKeyType="next"
-              accessibilityLabel="Username, optional"
-            />
-          )}
+          {isSignUp ? (
+            <>
+              {/* Username is optional during registration. */}
+              <TextInput
+                style={styles.input}
+                placeholder="Username (optional)"
+                placeholderTextColor="rgba(245,241,232,0.65)"
+                value={username}
+                onChangeText={(value) => {
+                  setUsername(value);
+                  setNotice(null);
+                  if (signUpError) clearSignUpError();
+                }}
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={!isBusy}
+                returnKeyType="next"
+                accessibilityLabel="Username, optional"
+              />
 
-          <TextInput
-            style={styles.input}
-            placeholder={
-              isSignUp ? 'Email address' : 'Email or username'
-            }
-            placeholderTextColor="rgba(245,241,232,0.65)"
-            value={identifier}
-            onChangeText={handleIdentifierChange}
-            autoCapitalize="none"
-            autoCorrect={false}
-            autoComplete={isSignUp ? 'email' : 'username'}
-            textContentType={isSignUp ? 'emailAddress' : 'username'}
-            keyboardType={isSignUp ? 'email-address' : 'default'}
-            editable={!isBusy}
-            returnKeyType="next"
-            accessibilityLabel={
-              isSignUp ? 'Email address' : 'Email or username'
-            }
-          />
+              {/* Registration uses email, not phone or username. */}
+              <TextInput
+                style={styles.input}
+                placeholder="Email address"
+                placeholderTextColor="rgba(245,241,232,0.65)"
+                value={email}
+                onChangeText={handleEmailChange}
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="email"
+                textContentType="emailAddress"
+                keyboardType="email-address"
+                editable={!isBusy}
+                returnKeyType="next"
+                accessibilityLabel="Email address"
+              />
+            </>
+          ) : (
+            <>
+              {/* Let users explicitly select their login identifier type. */}
+              <View style={styles.identifierSelector}>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityState={{
+                    selected: loginIdentifierType === 'email',
+                  }}
+                  disabled={isBusy}
+                  onPress={() => selectIdentifierType('email')}
+                  style={[
+                    styles.identifierOption,
+                    loginIdentifierType === 'email' &&
+                      styles.identifierOptionSelected,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.identifierOptionText,
+                      loginIdentifierType === 'email' &&
+                        styles.identifierOptionTextSelected,
+                    ]}
+                  >
+                    Email
+                  </Text>
+                </Pressable>
+
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityState={{
+                    selected: loginIdentifierType === 'phone',
+                  }}
+                  disabled={isBusy}
+                  onPress={() => selectIdentifierType('phone')}
+                  style={[
+                    styles.identifierOption,
+                    loginIdentifierType === 'phone' &&
+                      styles.identifierOptionSelected,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.identifierOptionText,
+                      loginIdentifierType === 'phone' &&
+                        styles.identifierOptionTextSelected,
+                    ]}
+                  >
+                    Phone
+                  </Text>
+                </Pressable>
+
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityState={{
+                    selected: loginIdentifierType === 'username',
+                  }}
+                  disabled={isBusy}
+                  onPress={() => selectIdentifierType('username')}
+                  style={[
+                    styles.identifierOption,
+                    loginIdentifierType === 'username' &&
+                      styles.identifierOptionSelected,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.identifierOptionText,
+                      loginIdentifierType === 'username' &&
+                        styles.identifierOptionTextSelected,
+                    ]}
+                  >
+                    Username
+                  </Text>
+                </Pressable>
+              </View>
+
+              {/* Render only the input corresponding to the selected type. */}
+              {loginIdentifierType === 'email' && (
+                <TextInput
+                  style={styles.input}
+                  placeholder="Email address"
+                  placeholderTextColor="rgba(245,241,232,0.65)"
+                  value={email}
+                  onChangeText={handleEmailChange}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  autoComplete="email"
+                  textContentType="emailAddress"
+                  keyboardType="email-address"
+                  editable={!isBusy}
+                  returnKeyType="next"
+                  accessibilityLabel="Email address"
+                />
+              )}
+
+              {loginIdentifierType === 'phone' && (
+                <TextInput
+                  style={styles.input}
+                  placeholder="Phone number (digits only)"
+                  placeholderTextColor="rgba(245,241,232,0.65)"
+                  value={phone}
+                  onChangeText={handlePhoneChange}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="number-pad"
+                  editable={!isBusy}
+                  returnKeyType="next"
+                  accessibilityLabel="Phone number"
+                />
+              )}
+
+              {loginIdentifierType === 'username' && (
+                <TextInput
+                  style={styles.input}
+                  placeholder="Username"
+                  placeholderTextColor="rgba(245,241,232,0.65)"
+                  value={loginUsername}
+                  onChangeText={handleUsernameChange}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  autoComplete="username"
+                  textContentType="username"
+                  keyboardType="default"
+                  editable={!isBusy}
+                  returnKeyType="next"
+                  accessibilityLabel="Username"
+                />
+              )}
+            </>
+          )}
 
           <TextInput
             style={styles.input}
@@ -352,6 +585,38 @@ const styles = StyleSheet.create({
     maxWidth: 340,
     gap: 12,
     marginBottom: 18,
+  },
+
+  identifierSelector: {
+    flexDirection: 'row',
+    gap: 8,
+    padding: 4,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(245,241,232,0.35)',
+    backgroundColor: 'rgba(20,19,16,0.3)',
+  },
+
+  identifierOption: {
+    flex: 1,
+    minHeight: 40,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  identifierOptionSelected: {
+    backgroundColor: '#F5F1E8',
+  },
+
+  identifierOptionText: {
+    color: '#F5F1E8',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+
+  identifierOptionTextSelected: {
+    color: '#24231F',
   },
 
   input: {

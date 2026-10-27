@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 
 export type LoginInput = {
   identifier: string;
+  identifierType: 'email' | 'username' | 'phone';
   password: string;
 };
 
@@ -18,48 +19,47 @@ type LoginResponse = {
 };
 
 /**
- * Authenticates an existing user using their email or username.
+ * Authenticates an existing user using their email, phone number, or username.
  *
- * Username matching is case-insensitive and is resolved securely
- * by the Supabase login Edge Function.
+ * Email matching is case-insensitive. Phone number and username matching
+ * are resolved by the Supabase login Edge Function.
  *
- * Persists the returned authentication session in the local
- * Supabase client.
+ * Persists the returned authentication session in the local Supabase client.
  *
- * @param input - The user's email or username and password.
+ * @param input - The user's email, phone number, or username and password.
  * @returns The authenticated user and persisted session.
- * @throws {Error} If authentication or session persistence fails.
+ * @throws {Error} If credentials are missing, authentication fails,
+ * or session persistence fails.
  */
 export async function login({
   identifier,
+  identifierType,
   password,
 }: LoginInput) {
   const normalizedIdentifier = identifier.trim();
-  
+
   if (!normalizedIdentifier || !password) {
-    throw new Error('Email/username and password are required.');
+    throw new Error('Identifier and password are required.');
   }
 
-  const loginIdentifier = normalizedIdentifier.includes('@')
-    ? normalizedIdentifier.toLowerCase()
-    : normalizedIdentifier;
+  const loginIdentifier =
+    identifierType === 'email'
+      ? normalizedIdentifier.toLowerCase()
+      : normalizedIdentifier;
 
   const { data, error } =
-    // Call the Supabase auth client to invoke the login Edge Function with the provided credentials.
     await supabase.functions.invoke<LoginResponse>('login', {
       body: {
         identifier: loginIdentifier,
+        identifierType,
         password,
       },
     });
 
   if (error || !data?.session) {
-    throw new Error(
-      'Invalid email/username or password, or unable to log in.',
-    );
+    throw new Error('Invalid credentials, or unable to log in.');
   }
 
-  // Persist the session in the local Supabase client for subsequent authenticated requests.
   const { data: sessionData, error: sessionError } =
     await supabase.auth.setSession({
       access_token: data.session.access_token,

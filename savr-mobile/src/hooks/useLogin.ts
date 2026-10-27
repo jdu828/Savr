@@ -2,11 +2,14 @@
 import { useState } from 'react';
 import { login } from '../services/auth/login.service';
 
+type IdentifierType = 'email' | 'username' | 'phone';
+
 type UseLoginResult = {
   isLoading: boolean;
   error: string | null;
   submitLogin: (
     identifier: string,
+    identifierType: IdentifierType,
     password: string,
   ) => Promise<boolean>;
   clearError: () => void;
@@ -24,21 +27,28 @@ export function useLogin(): UseLoginResult {
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * Submits email/username and password to authenticate the user.
+   * Submits an email address, username, or phone number and password.
    *
-   * @param identifier - The user's email address or username.
+   * @param identifier - The user's email, username, or phone number.
+   * @param identifierType - Explicitly identifies the type of login identifier.
    * @param password - The user's password.
    * @returns True when login succeeds, otherwise false.
    */
   async function submitLogin(
     identifier: string,
+    identifierType: IdentifierType,
     password: string,
   ): Promise<boolean> {
     setIsLoading(true);
     setError(null);
 
     try {
-      await login({ identifier, password });
+      await login({
+        identifier,
+        identifierType,
+        password,
+      });
+
       return true;
     } catch (err: unknown) {
       setError(
