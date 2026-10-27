@@ -10,8 +10,8 @@ describe('getRecipeSteps', () => {
 
   it('should fetch recipe steps ordered by step_number', async () => {
     const mockData = [
-      { id: 's1', recipe_id: 'r1', step_number: 1, instruction: 'Do first' },
-      { id: 's2', recipe_id: 'r1', step_number: 2, instruction: 'Do second' },
+      { id: 's1', recipe_id: 'r1', step_number: 1, instruction_text: 'Do first' },
+      { id: 's2', recipe_id: 'r1', step_number: 2, instruction_text: 'Do second' },
     ];
 
     (supabase.from as jest.Mock).mockReturnValue({
