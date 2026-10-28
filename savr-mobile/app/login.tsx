@@ -1,7 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   StatusBar,
   StyleSheet,
@@ -219,6 +221,49 @@ export default function LoginScreen() {
     setNotice(null);
     clearError();
   }
+
+  useEffect(() => {
+    if (!isSignUp || !signUpError) {
+      return;
+    }
+
+    const normalizedError = signUpError.toLowerCase();
+
+    const isDuplicateEmail =
+      normalizedError.includes('already registered') ||
+      normalizedError.includes('already exists') ||
+      normalizedError.includes('email address is already in use');
+
+    if (!isDuplicateEmail) {
+      return;
+    }
+
+    Alert.alert(
+      'Email Already Registered',
+      'An account with this email address already exists. Please log in or use a different email address.',
+      [
+        {
+          text: 'Back to Log In',
+          onPress: () => {
+            setIsSignUp(false);
+            setNotice(null);
+            clearSignUpError();
+            clearError();
+          },
+        },
+        {
+          text: 'OK',
+          style: 'cancel',
+          onPress: clearSignUpError,
+        },
+      ],
+    );
+  }, [
+    isSignUp,
+    signUpError,
+    clearSignUpError,
+    clearError,
+  ]);
 
   return (
     <View style={styles.container}>
@@ -450,7 +495,11 @@ export default function LoginScreen() {
             accessibilityLabel="Password"
           />
 
-          {activeError ? (
+          {activeError &&
+          !(isSignUp &&
+            /already registered|already exists|email address is already in use/i.test(
+              activeError,
+            )) ? (
             <Text style={styles.errorText} accessibilityRole="alert">
               {activeError}
             </Text>

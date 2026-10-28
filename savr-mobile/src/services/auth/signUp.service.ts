@@ -7,16 +7,6 @@ export type SignUpInput = {
   username?: string;
 };
 
-/**
-* Registers a new user with Supabase Auth.
-*
-* Passes the optional username as user metadata so the database
-* trigger can create the user's profile and preferences.
-*
-* @param input - The user's email, password, and optional username.
-* @returns The Supabase signup data, including the user and session.
-* @throws {AuthError} If Supabase rejects the signup request.
-*/
 export async function signUp({
   email,
   password,
@@ -25,6 +15,11 @@ export async function signUp({
   const normalizedEmail = email.trim().toLowerCase();
   const normalizedUsername = username?.trim();
 
+  console.log('[signUp.service] Sending signup request:', {
+    email: normalizedEmail,
+    hasUsername: Boolean(normalizedUsername),
+  });
+
   const { data, error } = await supabase.auth.signUp({
     email: normalizedEmail,
     password,
@@ -32,10 +27,25 @@ export async function signUp({
       data: normalizedUsername
         ? { username: normalizedUsername }
         : {},
+      emailRedirectTo: 'savr://profile'
     },
   });
 
+  console.log('[signUp.service] Supabase response:', {
+    hasUser: Boolean(data?.user),
+    hasSession: Boolean(data?.session),
+    identitiesCount: data?.user?.identities?.length,
+    error: error
+      ? {
+          message: error.message,
+          code: error.code,
+          status: error.status,
+        }
+      : null,
+  });
+
   if (error) {
+    console.error('[signUp.service] Signup error:', error.message);
     throw error;
   }
 

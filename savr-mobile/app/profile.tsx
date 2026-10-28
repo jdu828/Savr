@@ -1,5 +1,4 @@
 
-import React from 'react';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Feather } from '@react-native-vector-icons/feather';
@@ -7,6 +6,8 @@ import { useRouter } from 'expo-router';
 
 import { useLogout } from '../src/hooks/useLogout';
 import { BottomNavigationBar } from '../src/components/navigation/BottomNavigationBar';
+import React, { useEffect, useState } from 'react';
+import { getAccount } from '../src/services/auth/account.service';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -16,9 +17,43 @@ export default function ProfileScreen() {
     submitLogout,
   } = useLogout();
 
-  // Temporary display values until Supabase profile data is connected.
-  const username = 'username';
+  const [username, setUsername] = useState<string | null>(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadAccount(): Promise<void> {
+      try {
+        const account = await getAccount();
+
+        if (isMounted) {
+          setUsername(account.username);
+        }
+      } catch (error: unknown) {
+        console.error('Failed to load account:', error);
+      } finally {
+        if (isMounted) {
+          setIsLoadingProfile(false);
+        }
+      }
+    }
+
+    void loadAccount();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Personal name remains a placeholder until it is stored in the database.
   const personalName = 'Your Name';
+
+  const displayedUsername = isLoadingProfile
+    ? 'Loading...'
+    : username
+      ? `@${username}`
+      : 'Username unavailable';
 
   async function handleLogout(): Promise<void> {
     const success = await submitLogout();
@@ -40,7 +75,7 @@ export default function ProfileScreen() {
         </View>
 
         <Text style={styles.personalName}>{personalName}</Text>
-        <Text style={styles.username}>@{username}</Text>
+        <Text style={styles.username}>@{displayedUsername}</Text>
       </View>
 
       <View style={styles.detailsSection}>
@@ -53,7 +88,7 @@ export default function ProfileScreen() {
 
         <View style={styles.detailRow}>
           <Text style={styles.label}>Username</Text>
-          <Text style={styles.value}>@{username}</Text>
+          <Text style={styles.value}>@{displayedUsername}</Text>
         </View>
       </View>
 
