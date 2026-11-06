@@ -27,7 +27,7 @@ export async function signUp({
       data: normalizedUsername
         ? { username: normalizedUsername }
         : {},
-      emailRedirectTo: 'savr://profile'
+      emailRedirectTo: 'savr://profile' // Email verification is turned off for now
     },
   });
 

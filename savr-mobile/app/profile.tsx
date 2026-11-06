@@ -18,6 +18,7 @@ export default function ProfileScreen() {
   } = useLogout();
 
   const [username, setUsername] = useState<string | null>(null);
+  const [name, setName] = useState<string | null>("");
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export default function ProfileScreen() {
 
         if (isMounted) {
           setUsername(account.username);
+          setName(account.name);
         }
       } catch (error: unknown) {
         console.error('Failed to load account:', error);
@@ -47,12 +49,16 @@ export default function ProfileScreen() {
   }, []);
 
   // Personal name remains a placeholder until it is stored in the database.
-  const personalName = 'Your Name';
+  const displayedName = isLoadingProfile
+    ? 'Loading...'
+    : name
+      ? `${name}`
+      : 'Name not found';
 
   const displayedUsername = isLoadingProfile
     ? 'Loading...'
     : username
-      ? `@${username}`
+      ? `${username}`
       : 'Username unavailable';
 
   async function handleLogout(): Promise<void> {
@@ -74,14 +80,14 @@ export default function ProfileScreen() {
           <Feather name="user" size={48} color="#777168" />
         </View>
 
-        <Text style={styles.personalName}>{personalName}</Text>
+        <Text style={styles.displayedName}>{displayedName}</Text>
         <Text style={styles.username}>@{displayedUsername}</Text>
       </View>
 
       <View style={styles.detailsSection}>
         <View style={styles.detailRow}>
           <Text style={styles.label}>Personal name</Text>
-          <Text style={styles.value}>{personalName}</Text>
+          <Text style={styles.value}>{displayedName}</Text>
         </View>
 
         <View style={styles.separator} />
@@ -148,7 +154,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 16,
   },
-  personalName: {
+  displayedName: {
     fontSize: 22,
     fontWeight: '600',
     color: '#292720',

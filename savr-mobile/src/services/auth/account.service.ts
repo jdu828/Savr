@@ -1,12 +1,8 @@
 
 import { supabase } from '../../lib/supabase';
+import { User } from '../../types/user.types';
 
-export type Account = {
-  id: string;
-  username: string;
-};
-
-export async function getAccount(): Promise<Account> {
+export async function getAccount(): Promise<User> {
   // Retrieve the currently authenticated user.
   const {
     data: { session },
@@ -24,7 +20,7 @@ export async function getAccount(): Promise<Account> {
   // Fetch the user's public profile using their authenticated user ID.
   const { data, error } = await supabase
     .from('users')
-    .select('id, username')
+    .select('id, username, name')
     .eq('id', session.user.id)
     .single();
 
@@ -33,7 +29,8 @@ export async function getAccount(): Promise<Account> {
   }
 
   return {
-    id: data.id,
+    userId: data.id,
     username: data.username,
+    name: data.name,
   };
 }

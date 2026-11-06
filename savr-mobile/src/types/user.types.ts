@@ -2,6 +2,7 @@
 export type UserRow = {
   id: string;
   username: string;
+  name: string | null;
   created_at: string;
 };
 
@@ -9,7 +10,7 @@ export type UserRow = {
 export type User = {
   userId: string;
   username: string;
-  createdAt: string;
+  name: string | null; 
 };
 
 export type UserPreferencesRow = {
