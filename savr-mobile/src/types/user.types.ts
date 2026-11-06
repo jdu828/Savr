@@ -4,6 +4,7 @@ export type UserRow = {
   username: string;
   name: string | null;
   created_at: string;
+  updated_at: string;
 };
 
 // Frontend model 

@@ -558,18 +558,21 @@ export type Database = {
           created_at: string
           id: string
           name: string | null
+          updated_at: string | null
           username: string
         }
         Insert: {
           created_at?: string
           id: string
           name?: string | null
+          updated_at?: string | null
           username: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string | null
+          updated_at?: string | null
           username?: string
         }
         Relationships: []
